@@ -14,12 +14,12 @@
     {
       "binding": "DATABASE", // Must match context.env.[binding] 
       "database_name": "my-database",
-      "database_id": "2f4e4b06-610b-4de1-9cb5-ab837f7357e4" 
+      "database_id": "ab82eee1-f1a0-41d5-9c6d-00389f164b9a" 
     },
     {
       "binding": "DATABASE2", // Must match context.env.[binding] 
       "database_name": "database2",
-      "database_id": "4fc9f558-2f2f-4344-ad40-976894420e01"
+      "database_id": "cdc05810-33d4-40e2-9bff-293994044b9a"
     }
   ],
   // Object storage binding
