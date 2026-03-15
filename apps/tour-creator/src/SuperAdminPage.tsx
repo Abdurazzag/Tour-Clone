@@ -71,6 +71,26 @@ export default function SuperAdminPage({ onOpenProject, username, onLogout }: Pr
         }
     };
 
+    const handleDeleteMap = async () => {
+        if (!window.confirm("Are you sure you want to delete the global overview map? This will remove the map from the editor and the main website.")) return;
+
+        const token = localStorage.getItem("authToken");
+        try {
+            const res = await fetch("/delete-image", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                },
+                body: JSON.stringify({ imageUrl: "global-map.png" })
+            });
+            if (res.ok) alert("Global Map deleted successfully!");
+            else alert("Failed to delete map");
+        } catch (err) {
+            alert("Error deleting map");
+        }
+    };
+
     const createProject = async () => {
         const name = newName.trim();
         const adminUsername = newAdmin.trim();
@@ -345,7 +365,7 @@ export default function SuperAdminPage({ onOpenProject, username, onLogout }: Pr
                     </div>
                     <div className={leftBarStyles.sidebarBox}>
                         <div style={{ display: "grid", gap: "0.75rem" }}>
-                            <a href="https://tour-75k.pages.dev" className={styles.secondaryBtn} style={{ textAlign: "center" }}>
+                            <a href="tour-1ae.pages.dev" className={styles.secondaryBtn} style={{ textAlign: "center" }}>
                                 Back to Website
                             </a>
                             <div
@@ -387,6 +407,9 @@ export default function SuperAdminPage({ onOpenProject, username, onLogout }: Pr
                             <input type="file" id="mapUpload" style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleMapUpload} />
                             <button onClick={() => document.getElementById('mapUpload')?.click()} className={styles.secondaryBtn}>
                                 Upload Overview Map
+                            </button>
+                            <button onClick={handleDeleteMap} className={styles.secondaryBtn} style={{ color: "#e74c3c" }}>
+                                Delete Overview Map
                             </button>
                         </div>
                     </div>

@@ -24,6 +24,21 @@ export async function onRequestPost(context) {
             });
         }
 
+        // --- GLOBAL MAP DELETION BYPASS ---
+        let filename = imageUrl;
+        const matchRegex = imageUrl.match(/name=([^&]+)/);
+        if (matchRegex) {
+            filename = matchRegex[1];
+        }
+
+        if (filename === 'global-map.png') {
+            await bucket.delete(filename);
+            return new Response(JSON.stringify({ success: true }), {
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+        // ----------------------------------
+
         // Only superadmins or the admin who owns the tour can delete
         let tour;
         if (decoded.isSuperAdmin) {
@@ -51,7 +66,7 @@ export async function onRequestPost(context) {
             });
         }
 
-        const filename = match[1];
+        filename = match[1];
         await bucket.delete(filename);
 
         return new Response(JSON.stringify({ success: true }), {

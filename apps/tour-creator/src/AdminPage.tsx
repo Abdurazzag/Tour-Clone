@@ -58,6 +58,26 @@ export default function AdminPage({ onOpenProject, username, onLogout }: Props) 
         }
     };
 
+    const handleDeleteMap = async () => {
+        if (!window.confirm("Are you sure you want to delete the global overview map? This will remove the map from the editor and the main website.")) return;
+
+        const token = localStorage.getItem("authToken");
+        try {
+            const res = await fetch("/delete-image", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                },
+                body: JSON.stringify({ imageUrl: "global-map.png" })
+            });
+            if (res.ok) alert("Global Map deleted successfully!");
+            else alert("Failed to delete map");
+        } catch (err) {
+            alert("Error deleting map");
+        }
+    };
+
     const filteredProjects = projects.filter((p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -154,6 +174,9 @@ export default function AdminPage({ onOpenProject, username, onLogout }: Props) 
                             <input type="file" id="mapUpload" style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleMapUpload} />
                             <button onClick={() => document.getElementById('mapUpload')?.click()} className={styles.secondaryBtn}>
                                 Upload Overview Map
+                            </button>
+                            <button onClick={handleDeleteMap} className={styles.secondaryBtn} style={{ color: "#e74c3c" }}>
+                                Delete Overview Map
                             </button>
                         </div>
                     </div>
