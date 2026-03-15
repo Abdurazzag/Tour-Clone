@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import HotspotPlacingPage from "./HotspotPlacingPage";
 import EditorLeftBar from "./Components/EditorLeftBar";
 import SlideshowFeature from "./Components/ImageSlideshow";
-import styles from "./styles/EditProjectPage.module.css"; // Import new styles
+import MapPinPlacer from "./Components/MapPinPlacer";
+import styles from "./styles/EditProjectPage.module.css"; 
 import { type Project, listProjects, saveProjects, publishTour, unpublishTour, isPublished } from "./script/storage";
 import { LandingPageCreator } from "./Components/LandingPageCreator";
 import { HighlightsCreator } from "./Components/HighlightCreator";
@@ -16,13 +17,14 @@ interface EditProjectPageProps {
 
 function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
     const { tour } = project;
-    const [update, setUpdate] = useState(0); // Dummy state to force re-render
+    const [update, setUpdate] = useState(0); 
     const [showHotspotPage, setShowHotspotPage] = useState(false);
     const [viewingTour, setViewingTour] = useState(false);
     const [showSlideshowPage, setShowSlideshowPage] = useState(false);
     const [showLandingPage, setShowLandingPage] = useState(false);
     const [showSelectionCardPage, setShowSelectionCardPage] = useState(false);
     const [showHighlightsPage, setShowHighlightsPage] = useState(false);
+    const [showMapPinPage, setShowMapPinPage] = useState(false);
     const [published, setPublished] = useState(false);
     const [hoverPreview, setHoverPreview] = useState<{ imageSrc: string; x: number; y: number } | null>(null);
     const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -31,7 +33,6 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
         isPublished(project.id).then(setPublished);
     }, [project.id]);
 
-    // Hide hover preview immediately on scroll
     useEffect(() => {
         const onScroll = () => {
             if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -41,7 +42,10 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
         return () => window.removeEventListener('scroll', onScroll, true);
     }, []);
 
-    // New render logic for the slideshow page
+    if (showMapPinPage) {
+        return <MapPinPlacer tour={tour} onReturn={() => setShowMapPinPage(false)} />;
+    }
+
     if (showSlideshowPage) {
         return (
             <SlideshowFeature 
@@ -124,7 +128,6 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
                 const deleted = tour.createdPanoNodes[index];
                 tour.createdPanoNodes.splice(index, 1);
 
-                // If the deleted node was the startNode, reassign to the next available node
                 if (deleted === tour.startNode) {
                     tour.startNode = tour.createdPanoNodes.length > 0
                         ? tour.createdPanoNodes[0]
@@ -138,7 +141,6 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
     };
 
     const SceneNames = (tour.createdPanoNodes ?? [])
-        //.filter(p => p.imageSrc !== tour.startNode?.imageSrc)
         .map(p => p.fileName || getFileNameFromUrl(p.imageSrc))
         .filter(Boolean);
 
@@ -189,9 +191,9 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
     const handleImageListItemHover = (e: React.MouseEvent<HTMLElement>, index: number) => {
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
         const image = tour.createdPanoNodes ? tour.createdPanoNodes[index].imageSrc : undefined;
-        const xCoord = e.currentTarget.getBoundingClientRect().left - 220; // - goes left
+        const xCoord = e.currentTarget.getBoundingClientRect().left - 220; 
         const yCoord = Math.floor(e.currentTarget.getBoundingClientRect().top 
-            + (e.currentTarget.getBoundingClientRect().height / 2) - 55); // - goes up
+            + (e.currentTarget.getBoundingClientRect().height / 2) - 55); 
         if (image) {
             const thumbnail = image.replace('.jpg', '-small.jpg');
             setHoverPreview({ imageSrc: thumbnail, x: xCoord, y: yCoord });
@@ -201,6 +203,7 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
     const handleImageListItemLeave = () => {
         hoverTimeoutRef.current = setTimeout(() => setHoverPreview(null), 100);
     };
+
     const uploadSection = !tour.startNode ? (
         <div className={styles.card}>
             <h3 className={styles.cardHeader}>360 Manager</h3>
@@ -342,7 +345,9 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
                             </button>
                             <button
                                 className={styles.actionBtn}
-                                style={{ width: '100%' , margin: '1rem 0'}}                            >
+                                style={{ width: '100%' , margin: '1rem 0'}}
+                                onClick={() => setShowMapPinPage(true)}                            
+                            >
                                 Place pin on map
                             </button>
                             
@@ -367,6 +372,6 @@ function EditProjectPage({ project, onReturn }: EditProjectPageProps) {
             )}
         </div>
     );
-};
+}
 
 export default EditProjectPage;

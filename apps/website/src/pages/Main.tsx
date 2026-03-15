@@ -55,20 +55,49 @@ export const Main: React.FC = () => {
 
         <div className="column2">
           <div
-          className="mapexample"
+            className="mapexample"
             style={{
               overflow: "auto",
               borderRadius: "30px",
+              position: "relative", // Ensures pins stay bound to this container
+              boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
             }}
           >
             <img
-              src={"/images/MapExample.png"}
-              alt="Interactive map placeholder"
+              src={"/get-image?name=global-map.png"} // Fetch the admin-uploaded map
+              alt="Interactive campus map"
               style={{
                 maxWidth: "100%",
-                height: "100%",
+                height: "auto",
+                display: "block"
               }}
+              onError={(e) => { e.currentTarget.src = "/images/MapExample.png" }} // Fallback if no map is uploaded yet
             />
+            
+            {/* Overlay the clickable pins for each tour */}
+            {tours.map(tour => tour.mapPin && (
+              <Link key={tour.id} to={`/tour/${tour.id}`} style={{
+                  position: 'absolute',
+                  left: `${tour.mapPin.x}%`,
+                  top: `${tour.mapPin.y}%`,
+                  transform: 'translate(-50%, -100%)', // Center pin horizontally, anchor to bottom point
+                  zIndex: 10
+              }}>
+                  <img 
+                      src="/images/pointerlogo.png" 
+                      alt="Pin" 
+                      title={tour.title}
+                      style={{ 
+                          width: '35px', 
+                          height: 'auto', 
+                          filter: 'drop-shadow(2px 4px 4px rgba(0,0,0,0.5))',
+                          transition: 'transform 0.2s ease-in-out'
+                      }} 
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  />
+              </Link>
+            ))}
           </div>
         </div>
       </div>

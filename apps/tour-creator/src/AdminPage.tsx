@@ -35,6 +35,29 @@ export default function AdminPage({ onOpenProject, username, onLogout }: Props) 
         loadProjects();
     }, []);
 
+    const handleMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Force the filename to be 'global-map.png' so it overwrites the master map in R2
+        const mapFile = new File([file], "global-map.png", { type: file.type });
+        const formData = new FormData();
+        formData.append("image", mapFile);
+
+        const token = localStorage.getItem("authToken");
+        try {
+            const res = await fetch("/save-image", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
+            });
+            if (res.ok) alert("Global Map uploaded successfully!");
+            else alert("Failed to upload map");
+        } catch (err) {
+            alert("Error uploading map");
+        }
+    };
+
     const filteredProjects = projects.filter((p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -128,6 +151,10 @@ export default function AdminPage({ onOpenProject, username, onLogout }: Props) 
                                     Log out
                                 </button>
                             </div>
+                            <input type="file" id="mapUpload" style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleMapUpload} />
+                            <button onClick={() => document.getElementById('mapUpload')?.click()} className={styles.secondaryBtn}>
+                                Upload Overview Map
+                            </button>
                         </div>
                     </div>
                 </aside>

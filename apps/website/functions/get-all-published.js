@@ -12,7 +12,8 @@ export async function onRequest(context) {
                 id: row.tour_ID,
                 title: data.tour?.mainPage?.title || data.name || "Untitled Tour",
                 description: data.tour?.mainPage?.description || "",
-                logo: data.tour?.mainPage?.logo || ""
+                logo: data.tour?.mainPage?.logo || "",
+                mapPin: data.tour?.mainPage?.mapPin || null
             };
         });
 

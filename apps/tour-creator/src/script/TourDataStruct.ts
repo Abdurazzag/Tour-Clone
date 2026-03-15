@@ -5,6 +5,7 @@ export class MainPageNode {
     logo?: string;
     introduction?: string;
     Highlights?: [string, string, string][];
+    mapPin?: { x: number; y: number; }; 
 
     addHighlight(imageSrc: string, title: string, description: string) {
         if (!this.Highlights) {

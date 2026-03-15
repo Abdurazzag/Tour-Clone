@@ -48,6 +48,29 @@ export default function SuperAdminPage({ onOpenProject, username, onLogout }: Pr
         listAdmins().then(setAdmins);
     }, []);
 
+    const handleMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Force the filename to be 'global-map.png' so it overwrites the master map in R2
+        const mapFile = new File([file], "global-map.png", { type: file.type });
+        const formData = new FormData();
+        formData.append("image", mapFile);
+
+        const token = localStorage.getItem("authToken");
+        try {
+            const res = await fetch("/save-image", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
+            });
+            if (res.ok) alert("Global Map uploaded successfully!");
+            else alert("Failed to upload map");
+        } catch (err) {
+            alert("Error uploading map");
+        }
+    };
+
     const createProject = async () => {
         const name = newName.trim();
         const adminUsername = newAdmin.trim();
@@ -322,8 +345,7 @@ export default function SuperAdminPage({ onOpenProject, username, onLogout }: Pr
                     </div>
                     <div className={leftBarStyles.sidebarBox}>
                         <div style={{ display: "grid", gap: "0.75rem" }}>
-                            <a href="
-tour-1ae.pages.dev" className={styles.secondaryBtn} style={{ textAlign: "center" }}>
+                            <a href="https://tour-75k.pages.dev" className={styles.secondaryBtn} style={{ textAlign: "center" }}>
                                 Back to Website
                             </a>
                             <div
@@ -361,6 +383,10 @@ tour-1ae.pages.dev" className={styles.secondaryBtn} style={{ textAlign: "center"
                             </button>
                             <button onClick={handleOpenCreateProject} className={styles.createBtn}>
                                 New Project
+                            </button>
+                            <input type="file" id="mapUpload" style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleMapUpload} />
+                            <button onClick={() => document.getElementById('mapUpload')?.click()} className={styles.secondaryBtn}>
+                                Upload Overview Map
                             </button>
                         </div>
                     </div>

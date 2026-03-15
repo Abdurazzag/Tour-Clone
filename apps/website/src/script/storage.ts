@@ -81,7 +81,7 @@ export const getPublishedTour = async (tourId: string): Promise<Project | null> 
     }
 };
 
-export type PublishedTourSummary = { id: number; title: string; description: string; logo: string };
+export type PublishedTourSummary = { id: number; title: string; description: string; logo: string; mapPin?: { x: number, y: number } };
 
 export const getAllPublishedTours = async (): Promise<PublishedTourSummary[]> => {
     try {
