@@ -17,6 +17,7 @@ const slideshowImages = [
 export const Main: React.FC = () => {
   const [tours, setTours] = useState<PublishedTourSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   useEffect(() => {
     getAllPublishedTours().then((data) => {
@@ -24,6 +25,75 @@ export const Main: React.FC = () => {
       setLoading(false);
     });
   }, []);
+
+  // Helper function to render the map so we can reuse it in both the thumbnail and the expanded modal
+  const renderMap = (expanded: boolean) => (
+    <div style={{ position: "relative", display: "inline-block" }}>
+        <img
+          src={"/get-image?name=global-map.png"} // Fetch the admin-uploaded map
+          alt="Interactive campus map"
+          style={{
+            display: "block",
+            width: expanded ? "auto" : "100%",
+            maxWidth: expanded ? "90vw" : "100%",
+            maxHeight: expanded ? "85vh" : "none",
+            borderRadius: expanded ? "8px" : "0px",
+            cursor: expanded ? "default" : "zoom-in",
+            boxShadow: expanded ? "0 10px 40px rgba(0,0,0,0.6)" : "none"
+          }}
+          onClick={() => !expanded && setIsMapExpanded(true)}
+          onError={(e) => { e.currentTarget.src = "/images/MapExample.png" }} 
+        />
+        
+        {/* Overlay the clickable pins for each tour */}
+        {tours.map(tour => tour.mapPin && (
+          <Link 
+              key={tour.id} 
+              to={`/tour/${tour.id}`} 
+              style={{
+                  display: 'block',
+                  position: 'absolute',
+                  left: `${tour.mapPin.x}%`,
+                  top: `${tour.mapPin.y}%`,
+                  transform: 'translate(-50%, -100%)', // Anchor the bottom tip of the pin
+                  zIndex: 10,
+                  textDecoration: 'none'
+              }}
+          >
+              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {/* Tooltip so users know which tour the pin leads to */}
+                  <div style={{
+                      backgroundColor: 'rgba(0,0,0,0.85)',
+                      color: 'white',
+                      padding: expanded ? '6px 12px' : '3px 6px',
+                      borderRadius: '4px',
+                      fontSize: expanded ? '14px' : '10px',
+                      whiteSpace: 'nowrap',
+                      marginBottom: '4px',
+                      fontWeight: 'bold',
+                      pointerEvents: 'none',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                  }}>
+                      {tour.title}
+                  </div>
+                  <img 
+                      src="/images/pointerlogo.png" 
+                      alt="Pin" 
+                      style={{ 
+                          width: expanded ? '45px' : '25px', // Scale pin up when expanded
+                          height: 'auto', 
+                          filter: 'drop-shadow(2px 4px 4px rgba(0,0,0,0.6))',
+                          transition: 'transform 0.2s ease-in-out',
+                          cursor: 'pointer'
+                      }} 
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  />
+              </div>
+          </Link>
+        ))}
+    </div>
+  );
 
   return (
     <div className="info-container">
@@ -47,9 +117,7 @@ export const Main: React.FC = () => {
             architecture.
           </p>
           <p style={{ maxWidth: "500px", marginLeft: "auto", marginRight: "auto" }}>
-          Please select a tour below to get started, or use the map to explore the campus.
-          We hope you enjoy discovering the rich history and architecture of our university
-          through this interactive experience!
+          Please select a tour below to get started, or click the map to expand it and explore the campus geographically.
           </p>
         </div>
 
@@ -57,74 +125,34 @@ export const Main: React.FC = () => {
           <div
             className="mapexample"
             style={{
-              overflow: "hidden", // Changed to hidden so the container cleanly wraps the map
+              overflow: "hidden",
               borderRadius: "30px",
               boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
               display: "flex",
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
+              position: "relative"
             }}
           >
-            {/* The crucial relative wrapper that exactly matches the image size on all screen sizes */}
-            <div style={{ position: "relative", display: "inline-block", width: "100%", maxWidth: "100%" }}>
-                <img
-                  src={"/get-image?name=global-map.png"} // Fetch the admin-uploaded map
-                  alt="Interactive campus map"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    display: "block"
-                  }}
-                  onError={(e) => { e.currentTarget.src = "/images/MapExample.png" }} // Fallback if no map is uploaded yet
-                />
-                
-                {/* Overlay the clickable pins for each tour */}
-                {tours.map(tour => tour.mapPin && (
-                  <Link 
-                      key={tour.id} 
-                      to={`/tour/${tour.id}`} 
-                      style={{
-                          display: 'block',
-                          position: 'absolute',
-                          left: `${tour.mapPin.x}%`,
-                          top: `${tour.mapPin.y}%`,
-                          transform: 'translate(-50%, -100%)', // Anchor the bottom tip of the pin to the coordinates
-                          zIndex: 10,
-                          textDecoration: 'none'
-                      }}
-                  >
-                      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          {/* Tooltip so users know which tour the pin leads to */}
-                          <div style={{
-                              backgroundColor: 'rgba(0,0,0,0.8)',
-                              color: 'white',
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              whiteSpace: 'nowrap',
-                              marginBottom: '4px',
-                              fontWeight: 'bold',
-                              pointerEvents: 'none',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                          }}>
-                              {tour.title}
-                          </div>
-                          <img 
-                              src="/images/pointerlogo.png" 
-                              alt="Pin" 
-                              style={{ 
-                                  width: '35px', 
-                                  height: 'auto', 
-                                  filter: 'drop-shadow(2px 4px 4px rgba(0,0,0,0.6))',
-                                  transition: 'transform 0.2s ease-in-out',
-                                  cursor: 'pointer'
-                              }} 
-                              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
-                              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                          />
-                      </div>
-                  </Link>
-                ))}
+            {renderMap(false)}
+            
+            {/* Overlay hint to indicate clickability */}
+            <div 
+              style={{
+                position: 'absolute',
+                bottom: '15px',
+                right: '15px',
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                pointerEvents: 'none',
+                fontWeight: 'bold',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+              }}
+            >
+              🔍 Click to Expand
             </div>
           </div>
         </div>
@@ -149,6 +177,55 @@ export const Main: React.FC = () => {
       </div>
 
       <Footer />
+
+      {/* Expanded Map Modal */}
+      {isMapExpanded && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px'
+          }}
+          onClick={() => setIsMapExpanded(false)} // Close when clicking the background
+        >
+          <button 
+            onClick={() => setIsMapExpanded(false)}
+            style={{
+              position: 'absolute',
+              top: '25px',
+              right: '35px',
+              background: 'white',
+              color: 'black',
+              border: 'none',
+              borderRadius: '50%',
+              width: '45px',
+              height: '45px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              zIndex: 10000,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+            }}
+          >
+            ✕
+          </button>
+          
+          <div 
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the map itself
+            style={{ position: 'relative' }}
+          >
+            {renderMap(true)}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
