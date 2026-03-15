@@ -57,47 +57,75 @@ export const Main: React.FC = () => {
           <div
             className="mapexample"
             style={{
-              overflow: "auto",
+              overflow: "hidden", // Changed to hidden so the container cleanly wraps the map
               borderRadius: "30px",
-              position: "relative", // Ensures pins stay bound to this container
-              boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+              boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
             }}
           >
-            <img
-              src={"/get-image?name=global-map.png"} // Fetch the admin-uploaded map
-              alt="Interactive campus map"
-              style={{
-                maxWidth: "100%",
-                height: "auto",
-                display: "block"
-              }}
-              onError={(e) => { e.currentTarget.src = "/images/MapExample.png" }} // Fallback if no map is uploaded yet
-            />
-            
-            {/* Overlay the clickable pins for each tour */}
-            {tours.map(tour => tour.mapPin && (
-              <Link key={tour.id} to={`/tour/${tour.id}`} style={{
-                  position: 'absolute',
-                  left: `${tour.mapPin.x}%`,
-                  top: `${tour.mapPin.y}%`,
-                  transform: 'translate(-50%, -100%)', // Center pin horizontally, anchor to bottom point
-                  zIndex: 10
-              }}>
-                  <img 
-                      src="/images/pointerlogo.png" 
-                      alt="Pin" 
-                      title={tour.title}
-                      style={{ 
-                          width: '35px', 
-                          height: 'auto', 
-                          filter: 'drop-shadow(2px 4px 4px rgba(0,0,0,0.5))',
-                          transition: 'transform 0.2s ease-in-out'
-                      }} 
-                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-              </Link>
-            ))}
+            {/* The crucial relative wrapper that exactly matches the image size on all screen sizes */}
+            <div style={{ position: "relative", display: "inline-block", width: "100%", maxWidth: "100%" }}>
+                <img
+                  src={"/get-image?name=global-map.png"} // Fetch the admin-uploaded map
+                  alt="Interactive campus map"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block"
+                  }}
+                  onError={(e) => { e.currentTarget.src = "/images/MapExample.png" }} // Fallback if no map is uploaded yet
+                />
+                
+                {/* Overlay the clickable pins for each tour */}
+                {tours.map(tour => tour.mapPin && (
+                  <Link 
+                      key={tour.id} 
+                      to={`/tour/${tour.id}`} 
+                      style={{
+                          display: 'block',
+                          position: 'absolute',
+                          left: `${tour.mapPin.x}%`,
+                          top: `${tour.mapPin.y}%`,
+                          transform: 'translate(-50%, -100%)', // Anchor the bottom tip of the pin to the coordinates
+                          zIndex: 10,
+                          textDecoration: 'none'
+                      }}
+                  >
+                      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          {/* Tooltip so users know which tour the pin leads to */}
+                          <div style={{
+                              backgroundColor: 'rgba(0,0,0,0.8)',
+                              color: 'white',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              whiteSpace: 'nowrap',
+                              marginBottom: '4px',
+                              fontWeight: 'bold',
+                              pointerEvents: 'none',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                          }}>
+                              {tour.title}
+                          </div>
+                          <img 
+                              src="/images/pointerlogo.png" 
+                              alt="Pin" 
+                              style={{ 
+                                  width: '35px', 
+                                  height: 'auto', 
+                                  filter: 'drop-shadow(2px 4px 4px rgba(0,0,0,0.6))',
+                                  transition: 'transform 0.2s ease-in-out',
+                                  cursor: 'pointer'
+                              }} 
+                              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
+                              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          />
+                      </div>
+                  </Link>
+                ))}
+            </div>
           </div>
         </div>
       </div>

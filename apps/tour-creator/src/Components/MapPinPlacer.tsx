@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { TourNode } from "../script/TourDataStruct";
+import styles from "../styles/EditProjectPage.module.css"; 
 
 interface Props {
     tour: TourNode;
@@ -11,7 +12,7 @@ export default function MapPinPlacer({ tour, onReturn }: Props) {
 
     const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
-        // Calculate relative coordinates in percentages so it scales on mobile
+        // Calculate relative coordinates in percentages so it scales perfectly on mobile
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
         setPin({ x, y });
@@ -19,44 +20,64 @@ export default function MapPinPlacer({ tour, onReturn }: Props) {
     };
 
     return (
-        <div style={{ backgroundColor: "#0b0b1a", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "20px", background: "#12122a", display: "flex", alignItems: "center" }}>
-                <button onClick={onReturn} style={{ background: "transparent", color: "#a8b2d1", border: "1px solid #a8b2d1", padding: "8px 16px", borderRadius: "4px", cursor: "pointer" }}>
-                    ← Back to Editor
-                </button>
-                <h2 style={{ color: "white", marginLeft: "20px", flex: 1, textAlign: "center" }}>Place Pin on Global Map</h2>
-                <div style={{ width: "130px" }} /> {/* Spacer */}
-            </div>
-            
-            <div style={{ padding: '20px', color: 'white', textAlign: 'center', flex: 1 }}>
-                <p>Click on the map below to place a pin for this tour. Ensure you save the project after returning.</p>
+        <div className={styles.pageContainer}>
+            <main className={styles.content} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 
-                <div style={{ position: 'relative', display: 'inline-block', border: '2px solid #2a2a40', cursor: 'crosshair', maxWidth: '800px', backgroundColor: '#1e1e2f', borderRadius: "8px", overflow: "hidden" }}>
-                    <img 
-                        src={`/get-image?name=global-map.png&t=${Date.now()}`} 
-                        alt="Global Map" 
-                        style={{ width: '100%', display: 'block' }} 
-                        onClick={handleImageClick}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; alert("No global map uploaded yet! Ask a Superadmin to upload one from the dashboard."); }}
-                    />
-                    
-                    {pin && (
-                        <div style={{
-                            position: 'absolute',
-                            left: `${pin.x}%`,
-                            top: `${pin.y}%`,
-                            width: '20px',
-                            height: '20px',
-                            backgroundColor: '#e74c3c',
-                            border: '3px solid white',
-                            borderRadius: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            pointerEvents: 'none',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
-                        }} />
-                    )}
+                {/* Header matching the editor style */}
+                <div className={styles.header} style={{ width: "100%", maxWidth: "1000px", borderRadius: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <button onClick={onReturn} className={styles.backBtn}>
+                        ← Back to Editor
+                    </button>
+                    <h1 className={styles.pageTitle} style={{ margin: 0 }}>Global Map Overview</h1>
                 </div>
-            </div>
+
+                {/* Main card matching the editor style */}
+                <div className={styles.card} style={{ width: "100%", maxWidth: "1000px", marginTop: "1rem", textAlign: "center" }}>
+                    <p className={styles.pageSubtitle} style={{ marginBottom: "1.5rem" }}>
+                        Click on the map below to place a pin for <strong>{tour.mainPage.title}</strong>. 
+                        The coordinate data will automatically attach to this tour. 
+                        Ensure you click "Save Project" when returning to the editor.
+                    </p>
+                    
+                    <div style={{ 
+                        position: 'relative', 
+                        display: 'inline-block', 
+                        cursor: 'crosshair', 
+                        width: '100%', 
+                        borderRadius: "0.5rem", 
+                        overflow: "hidden",
+                        border: "1px solid #e0e0e0",
+                        backgroundColor: "#f9fafb"
+                    }}>
+                        <img 
+                            src={`/get-image?name=global-map.png&t=${Date.now()}`} 
+                            alt="Global Map" 
+                            style={{ width: '100%', height: 'auto', display: 'block' }} 
+                            onClick={handleImageClick}
+                            onError={(e) => { 
+                                e.currentTarget.style.display = 'none'; 
+                                alert("No global map uploaded yet! Ask a Superadmin to upload one from the dashboard."); 
+                            }}
+                        />
+                        
+                        {pin && (
+                            <div style={{
+                                position: 'absolute',
+                                left: `${pin.x}%`,
+                                top: `${pin.y}%`,
+                                width: '24px',
+                                height: '24px',
+                                backgroundColor: '#7a1010', /* UoA Red matching your theme */
+                                border: '3px solid white',
+                                borderRadius: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                pointerEvents: 'none',
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                            }} />
+                        )}
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }
