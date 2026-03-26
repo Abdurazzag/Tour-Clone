@@ -1,4 +1,4 @@
-### Aberdeen tourism system application focusing on art and history
+### Aberdeen tourism system application allowing users to create their own dynamic 360 tours.
 
 Links to hosted sites (Both accessible from each other):  
 Website - https://tour-75k.pages.dev  
